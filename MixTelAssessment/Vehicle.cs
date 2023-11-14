@@ -1,10 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace MixTelAssessment
 {
@@ -18,8 +12,12 @@ namespace MixTelAssessment
 
         public float Longitude { get; set; }
 
-        public Int64 RecordedTimeUTC { get; set; }
+        public DateTime RecordedTime { get; set; }
 
+        public Vehicle()
+        {
+            
+        }
         /// <summary>
         /// Constructor with overloads for the result list
         /// </summary>
@@ -34,21 +32,42 @@ namespace MixTelAssessment
         }
 
         /// <summary>
-        /// Constuctor with overloads for input records from data file
+        /// Vehicle object creation from the byte's recieved when reading data file
         /// </summary>
-        /// <param name="vehicleID"></param>
-        /// <param name="vehicleReg"></param>
-        /// <param name="latitude"></param>
-        /// <param name="longitude"></param>
-        /// <param name="recordedTimeUTC"></param>
-        public Vehicle(int vehicleID, string vehicleReg, float latitude, float longitude, Int64 recordedTimeUTC)
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <returns>
+        /// Vehicle object
+        /// </returns>
+        internal static Vehicle FromBytes(byte[] buffer, ref int offset)
         {
-            VehicleID = vehicleID;
-            VehicleReg = vehicleReg;
-            Latitude = latitude;
-            Longitude = longitude;
+            var vehicle = new Vehicle();
 
-            RecordedTimeUTC = recordedTimeUTC;
+            vehicle.VehicleID = BitConverter.ToInt32(buffer, offset);
+            offset += 4;
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            while (buffer[offset] != (byte)0)
+            {
+                stringBuilder.Append((char)buffer[offset]);
+                ++offset;
+            }
+
+            vehicle.VehicleReg = stringBuilder.ToString();
+            ++offset;
+
+            vehicle.Latitude = BitConverter.ToSingle(buffer, offset);
+            offset += 4;
+
+            vehicle.Longitude = BitConverter.ToSingle(buffer, offset);
+            offset += 4;
+
+            ulong uint64 = BitConverter.ToUInt64(buffer, offset);
+            vehicle.RecordedTime = Util.FromCTime(uint64);
+            offset += 8; 
+
+            return vehicle;
         }
 
         /// <summary>
@@ -57,7 +76,7 @@ namespace MixTelAssessment
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("Registration: {0}, Coordinates: {1} {2}  ", VehicleReg, Latitude, Longitude);
+            return string.Format("Registration: {0}, Coordinates: {1} {2}", VehicleReg, Latitude, Longitude);
         }
     }
 }

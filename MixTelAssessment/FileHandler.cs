@@ -1,78 +1,56 @@
-﻿using MixTelAssessment;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MixTelAssessment
 {
-    public class FileHandler
+    internal class FilerHandler
     {
-        private readonly string fileName = "VehiclePositions.dat";
-        private readonly string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).ToString();
-        private string path;
-
-
-        public FileHandler()
+        /// <summary>
+        /// Function to return list of vehicles
+        /// </summary>
+        /// <returns></returns>
+        internal static List<Vehicle> ReadFile()
         {
-            path = Path.Combine(directory, fileName);
+            byte[] data = ReadData();
+            List<Vehicle> vehiclePositions = new List<Vehicle>();
+            int offset = 0;
+            while (offset < data.Length)
+                vehiclePositions.Add(ReadPositions(data, ref offset));
+            return vehiclePositions;
         }
 
         /// <summary>
-        /// Reads file from bin folder
+        /// Reads datafile
         /// </summary>
-        /// <returns>List of vehicles from the input file</returns>
-        public List<Vehicle> ReadFile()
+        /// <returns></returns>
+        private static byte[] ReadData()
         {
-
-            List<Vehicle> values = new List<Vehicle>();
-            FileStream stream = new FileStream(path, FileMode.Open);
-            int recordCount = (int)(stream.Length / 276);
+            var path = Util.GetLocalFilePath("VehiclePositions.dat");
 
             try
             {
                 if (File.Exists(path))
-                {
-                    using BinaryReader reader = new BinaryReader(stream);
-                    for (int i = 0; i < recordCount; i++)
-                    {
-                        values.Add(new Vehicle(reader.ReadInt32(), ReadNullTerminatedString(reader), reader.ReadSingle(), reader.ReadSingle(), reader.ReadInt64()));
-                    }
-                }
+                    return File.ReadAllBytes(path);
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                Console.ReadKey();
+                Console.WriteLine("Error reading file.");
+                Console.WriteLine($"Exception: {1}",ex.Message);
+               
             }
-            finally
-            {
-                stream.Dispose();
-            }
-
-            return values;
+            return (byte[])null;
         }
 
         /// <summary>
-        /// Used to format null terminated string value
+        /// Returns a Vehicle object from byte array
         /// </summary>
-        /// <param name="reader"></param>
-        /// <returns>string value derived from formatted input</returns>
-        private string ReadNullTerminatedString(BinaryReader reader)
-        {
-            List<char> chars = new List<char>();
-            char currentChar;
-
-            while ((currentChar = reader.ReadChar()) != '\0')
-            {
-                chars.Add(currentChar);
-            }
-
-            return new string(chars.ToArray());
-        }
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        private static Vehicle ReadPositions(byte[] data, ref int offset) => Vehicle.FromBytes(data, ref offset);
     }
 }
+
