@@ -22,7 +22,7 @@ namespace MixTelAssessment
         private static Coordinates[] GetPositions()
         {
             Coordinates[] inputPositions = new Coordinates[10];
-            inputPositions[0].Latitude = 18.544909f;
+            inputPositions[0].Latitude = 34.544909f;
             inputPositions[0].Longitude = -102.100843f;
             inputPositions[1].Latitude = 32.345544f;
             inputPositions[1].Longitude = -99.123124f;
@@ -31,7 +31,7 @@ namespace MixTelAssessment
             inputPositions[3].Latitude = 35.195739f;
             inputPositions[3].Longitude = -95.348899f;
             inputPositions[4].Latitude = 31.895839f;
-            inputPositions[4].Longitude = -92.789573f;
+            inputPositions[4].Longitude = -97.789573f;
             inputPositions[5].Latitude = 32.895839f;
             inputPositions[5].Longitude = -101.789573f;
             inputPositions[6].Latitude = 34.115839f;
